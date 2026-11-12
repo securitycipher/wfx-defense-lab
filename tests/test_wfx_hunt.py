@@ -296,6 +296,17 @@ class CliTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("VERDICT: NO INDICATORS", text)
 
+    def test_markdown_escapes_attacker_text(self):
+        h = wh.Hunter(FakeGitHub({}))
+        h.add("affected", "victim/app", 'Payload commit "[click](https://evil.example) <img src=x>"',
+              'trust policy allows "AWS": "*" and wfx-*', "https://github.com/victim/app")
+        md = wh.render_markdown(h, ["victim/app"], "")
+        self.assertNotIn("[click](", md)
+        self.assertIn("\\<img src=x\\>", md)
+        self.assertNotIn(" <img", md)
+        self.assertIn('"AWS": "\\*"', md)
+        self.assertIn("([link](<https://github.com/victim/app>))", md)
+
     def test_json_to_stdout_is_pure_json(self):
         code, text = self.cli(["good/lib", "--json", "-"], clean_routes())
         self.assertEqual(json.loads(text)["verdict"], "info")

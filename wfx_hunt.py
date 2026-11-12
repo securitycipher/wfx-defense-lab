@@ -592,21 +592,31 @@ def render_json(h: Hunter, targets: list[str], incomplete: str) -> dict:
     }
 
 
+MD_SPECIAL = re.compile(r"([\\`*_\[\]<>|#!~])")
+
+
+def md_escape(text: str) -> str:
+    # Titles and details carry attacker-written commit messages and branch names.
+    return MD_SPECIAL.sub(r"\\\1", text)
+
+
 def render_markdown(h: Hunter, targets: list[str], incomplete: str) -> str:
     v = h.verdict()
-    md = [f"## wfx check: {', '.join(targets)}", "", f"**Verdict:** {v.upper() if v != 'info' else 'NO INDICATORS'}  ",
-          f"{VERDICTS[v]}", "", f"_Generated {datetime.now(timezone.utc):%Y-%m-%d %H:%M} UTC by wfx_hunt {__version__}, "
-          f"window since {h.since}_", ""]
+    md = [f"## wfx check: {md_escape(', '.join(targets))}", "",
+          f"**Verdict:** {v.upper() if v != 'info' else 'NO INDICATORS'}  ",
+          f"{md_escape(VERDICTS[v])}", "", f"_Generated {datetime.now(timezone.utc):%Y-%m-%d %H:%M} UTC by wfx\\_hunt "
+          f"{__version__}, window since {h.since}_", ""]
     if incomplete:
-        md += [f"> Incomplete: {incomplete}", ""]
+        md += [f"> Incomplete: {md_escape(incomplete)}", ""]
     for repo, fs in h.by_repo():
-        md.append(f"### {repo}")
-        md += [f"- **{f.level.upper()}** {f.title} - {f.detail}" + (f" ([link]({f.url}))" if f.url else "") for f in fs]
+        md.append(f"### {md_escape(repo)}")
+        md += [f"- **{f.level.upper()}** {md_escape(f.title)} - {md_escape(f.detail)}"
+               + (f" ([link](<{f.url}>))" if f.url else "") for f in fs]
         md.append("")
     if h.skipped:
         md += [f"### Not deep-checked ({len(h.skipped)})", ", ".join(f"`{r}`" for r in h.skipped), ""]
     md.append("### Next steps")
-    md += [f"{i}. {s}" for i, s in enumerate(NEXT_STEPS[v], 1)]
+    md += [f"{i}. {md_escape(s)}" for i, s in enumerate(NEXT_STEPS[v], 1)]
     return "\n".join(md) + "\n"
 
 
