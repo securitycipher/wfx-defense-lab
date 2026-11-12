@@ -126,8 +126,8 @@ through the API (job log and the `wfx-report` artifact), rendered GitHub-style:
 ## Run it on a schedule
 
 [`examples/wfx-scan.yml`](examples/wfx-scan.yml) is a ready workflow: copy `wfx_hunt.py` into
-your own repo (vendoring beats curling a script into CI, which is exactly how this campaign
-got in), add a read-only token as `WFX_HUNT_TOKEN`, and it scans your org daily, writes the
+your own repo (pin what your pipeline runs instead of curling a moving branch at run time),
+add a read-only token as `WFX_HUNT_TOKEN`, and it scans your org daily, writes the
 Markdown report to the job summary, and fails when anything is found.
 
 ## Limits
