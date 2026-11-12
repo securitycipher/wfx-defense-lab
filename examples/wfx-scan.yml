@@ -1,0 +1,40 @@
+# Copy to .github/workflows/wfx-scan.yml and commit wfx_hunt.py as tools/wfx_hunt.py.
+# WFX_HUNT_TOKEN: fine-grained token, read-only Contents, Actions, Metadata, Pull requests
+# on every repo in the org.
+name: wfx-scan
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Scan the org
+        env:
+          GITHUB_TOKEN: ${{ secrets.WFX_HUNT_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          python3 tools/wfx_hunt.py --org "$OWNER" --all-repos --max-repos 500 \
+            --no-color -q --json wfx-report.json --markdown wfx-report.md
+
+      - name: Job summary
+        if: always()
+        run: test -f wfx-report.md && cat wfx-report.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: wfx-report
+          path: wfx-report.*
+          if-no-files-found: ignore
