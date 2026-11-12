@@ -1,0 +1,47 @@
+name: wfx-scan-demo
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "owner/repo, or --org NAME / --user NAME"
+        required: true
+        default: "zerosoul/rc-bullets"
+      extra:
+        description: "extra flags, e.g. --max-repos 10"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Scan
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET: ${{ inputs.target }}
+          EXTRA: ${{ inputs.extra }}
+          FORCE_COLOR: "1"
+        run: |
+          # word-split on purpose so "--org name" and extra flags become separate args
+          # shellcheck disable=SC2086
+          python3 wfx_hunt.py $TARGET $EXTRA --json wfx-report.json --markdown wfx-report.md
+
+      - name: Job summary
+        if: always()
+        run: test -f wfx-report.md && cat wfx-report.md >> "$GITHUB_STEP_SUMMARY" || true
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: wfx-report
+          path: wfx-report.*
+          if-no-files-found: ignore
