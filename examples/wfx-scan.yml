@@ -1,6 +1,6 @@
 # Copy to .github/workflows/wfx-scan.yml and commit wfx_hunt.py as tools/wfx_hunt.py.
-# WFX_HUNT_TOKEN: fine-grained token, read-only Contents, Actions, Metadata, Pull requests
-# on every repo in the org.
+# WFX_HUNT_TOKEN: fine-grained token, read-only Metadata, Contents, Pull requests, Actions,
+# Commit statuses on every repo in the org.
 name: wfx-scan
 
 on:

@@ -35,12 +35,12 @@ Python 3.9 or newer. No `pip install`.
 | `--workers N` | Repos checked in parallel (token only). Default 4. |
 | `--json FILE` | Write a JSON report. Use `-` for stdout. |
 | `--markdown FILE` | Write a Markdown report (good for a ticket or `$GITHUB_STEP_SUMMARY`). |
-| `--no-color`, `-q` | Plain output, no progress lines. |
+| `--no-color`, `-q` | Plain output, no progress lines. `NO_COLOR` and `FORCE_COLOR` are honored too. |
 
 The token comes from `GITHUB_TOKEN` or `GH_TOKEN`. Without one you only see public repos
 and GitHub gives you about 60 requests an hour, which is enough for one or two repos.
-A fine-grained token with read access to **Contents, Actions, Metadata and Pull requests**
-covers private repos. Nothing is ever written.
+A fine-grained token with read access to **Metadata, Contents, Pull requests, Actions and
+Commit statuses** covers private repos. Nothing is ever written.
 
 ## What it looks for
 

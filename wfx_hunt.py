@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """wfx_hunt - check GitHub orgs, users, and repos for the November 2026 wfx CI secret stealer.
 
-Read-only. Python 3.8+ standard library only. Nothing is sent anywhere except api.github.com
+Read-only. Python 3.9+ standard library only. Nothing is sent anywhere except api.github.com
 and raw.githubusercontent.com.
 
 Examples:
@@ -651,7 +651,8 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("give at least one TARGET, --org, --user, or --mine")
 
     token = (os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN") or "").strip()
-    color = sys.stdout.isatty() and not args.no_color and not os.environ.get("NO_COLOR")
+    color = ((sys.stdout.isatty() or bool(os.environ.get("FORCE_COLOR")))
+             and not args.no_color and not os.environ.get("NO_COLOR"))
     to_stderr = args.json == "-"
 
     def log(msg: str) -> None:
