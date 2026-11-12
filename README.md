@@ -89,6 +89,40 @@ zerosoul/rc-bullets
  VERDICT: AFFECTED   8 affected, 2 probed, 0 to review across 1 deep-checked repo(s)
 ```
 
+## Real runs
+
+Every screenshot below is from a real run on 12 November 2026, captured with Playwright.
+
+**Command line, on a confirmed victim repo** (`zerosoul/rc-bullets`, exit code 3):
+
+![wfx_hunt.py on zerosoul/rc-bullets](docs/screenshots/cli-repo-affected.png)
+
+**Command line, on a whole org** (`--org drunomics`): search across 147 repos, deep checks on the
+payload hits and newest pushes, then the JSON report for one repo:
+
+![wfx_hunt.py --org drunomics](docs/screenshots/cli-org-scan.png)
+
+**Clean repo exits 0, and the offline tests pass:**
+
+![clean repo and tests](docs/screenshots/cli-clean-and-tests.png)
+
+**In GitHub Actions.** The [`wfx-scan-demo`](.github/workflows/wfx-scan-demo.yml) workflow in this repo
+runs the same script on demand. Runs #4 and #5 scanned victims and went red; #6 scanned a clean repo
+and stayed green ([see them live](https://github.com/securitycipher/wfx-defense-lab/actions/workflows/wfx-scan-demo.yml)):
+
+![wfx-scan-demo runs](docs/screenshots/actions-runs.png)
+
+![run 4 failed with exit code 3](docs/screenshots/actions-run-exit-3.png)
+
+GitHub only shows logs and job summaries to signed-in users, so these two come from the same runs
+through the API (job log and the `wfx-report` artifact), rendered GitHub-style:
+
+![Scan step log of run 4](docs/screenshots/actions-log-affected.png)
+
+![job summary of run 4](docs/screenshots/actions-job-summary.png)
+
+![Scan step log of run 6, clean](docs/screenshots/actions-log-clean.png)
+
 ## Run it on a schedule
 
 [`examples/wfx-scan.yml`](examples/wfx-scan.yml) is a ready workflow: copy `wfx_hunt.py` into
@@ -115,6 +149,8 @@ The tests use a fake GitHub client, so they run offline and cover every verdict,
 the deep-check cap, reports, and the rate-limit path.
 
 ## The lab workflows
+
+`wfx-scan-demo.yml` is the manual scan shown above (Actions tab, "Run workflow", pick a target).
 
 `.github/workflows/secret-scope.yml` and `status-forge.yml` are harmless demos that go with the
 write-up. The secrets in this repo are dummy strings. Fork it into a private repo to run them;
